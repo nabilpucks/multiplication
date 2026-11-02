@@ -6,9 +6,10 @@ import { localDateKey } from './dates.js';
 import { daysSince } from './sessions.js';
 import { EXPORT_WARN_DAYS } from './constants.js';
 import { $, $$, toast } from './ui.js';
+import { lsKey } from './env.js';
 import { isActive } from './views/session.js';
 
-const LAST_EXPORT = 'mt.lastExportAt';
+const LAST_EXPORT = lsKey('lastExportAt');
 let lastExportAt = null;
 
 export async function initTransfer() {

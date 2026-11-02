@@ -218,6 +218,10 @@
       if (/[?&]src\b/.test(location.search) && location.protocol !== 'file:') { s.type = 'module'; s.src = 'js/main.js'; }
       else { s.src = 'js/app.bundle.js'; }
       document.body.appendChild(s);
+      if (/[?&]dev=1\b/.test(location.search)) {
+        var t = document.createElement('script'); t.src = 'dev/testmode.bundle.js'; t.defer = true;
+        s.addEventListener('load', function () { document.body.appendChild(t); });
+      }
     })();
   </script>
 </body>

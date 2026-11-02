@@ -3,13 +3,14 @@ import { Trainer } from '../trainer.js';
 import { createGenerator } from '../generator.js';
 import { buildWeakSource } from '../analysis-logic.js';
 import { store } from '../store.js';
+import { lsKey } from '../env.js';
 import { $, reducedMotion, confirmDialog, toast } from '../ui.js';
 
 let trainer = null;
 let tickTimer = 0;
 let lastShownSecond = -1;
 let navigate = () => {};
-const WEAK_KEY = 'mt.weakSpots';
+const WEAK_KEY = lsKey('weakSpots');
 
 export const isActive = () => !!trainer && trainer.state !== 'done';
 export const weakPref = () => { try { return localStorage.getItem(WEAK_KEY) === '1'; } catch { return false; } };

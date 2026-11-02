@@ -1,28 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dev tools · Daily Multiplication</title>
-  <meta name="robots" content="noindex">
-  <style>
-    body { font: 16px/1.5 system-ui, sans-serif; background: #0b0d12; color: #f2f3f6; max-width: 640px; margin: 60px auto; padding: 0 20px; }
-    h1 { letter-spacing: -.02em; } button { font: inherit; padding: 10px 16px; border-radius: 10px; border: 1px solid #333a; background: #1d2130; color: inherit; cursor: pointer; margin: 4px 6px 4px 0; }
-    .danger { background: #6b1f1f; } #out { margin-top: 20px; padding: 14px; background: #151821; border-radius: 10px; min-height: 1.5em; }
-    p { color: #aab; } a { color: #86b6ef; }
-  </style>
-</head>
-<body>
-  <h1>Dev tools</h1>
-  <p>Not linked from the app. Fake data goes into the same browser storage as your real data. Use a separate browser profile (or export first) if you care about the real sessions.</p>
-  <p>
-    <button id="load6">Load ~6 months of fake data</button>
-    <button id="load18">Load ~18 months (≈50k questions, History stress test)</button>
-  </p>
-  <p><button id="download">Download 6 months as an export file instead</button></p>
-  <p><button id="wipe" class="danger">Delete all data in this browser</button></p>
-  <div id="out"></div>
-  <p><a href="../index.html">← Back to the app</a></p>
-  <script src="dev.bundle.js"></script>
-</body>
-</html>
+<meta charset="utf-8">
+<title>Test mode</title>
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0; url=../index.html?dev=1">
+<p><a href="../index.html?dev=1">Open the app in test mode</a></p>

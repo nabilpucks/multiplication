@@ -1,6 +1,9 @@
 // App entry: storage check, routing, view lifecycle.
 import { store } from './store.js';
+import * as DB from './db.js';
 import { checkStorage } from './db.js';
+import { DEV } from './env.js';
+import { runCleanups } from './cleanup.js';
 import { $, $$ } from './ui.js';
 import { enterView, leaveView } from './motion.js';
 import { initSession, startSession, isActive, abandonIfActive } from './views/session.js';
@@ -62,6 +65,7 @@ async function boot() {
     banner('<strong>Storage isn’t working in this browser.</strong> Nothing you do will be saved. Try a normal (non-private) window, then <button class="link" data-action="import">import your last export</button>.');
   } else {
     store.setInstallId(check.installId);
+    try { await runCleanups(DB); } catch (e) { console.warn('cleanup failed', e); }
     try { await store.load(); } catch (e) { banner(`<strong>Couldn’t read saved data</strong> (${e.message}). <button class="link" data-action="import">Import your last export</button>.`); }
     if (check.wiped) {
       banner('<strong>Your saved sessions seem to have been cleared</strong> by the browser. <button class="link" data-action="import">Import your last export</button> or drag it onto this window to get them back.');
@@ -88,6 +92,7 @@ async function boot() {
   let day = todayState().today;
   setInterval(() => { const t = todayState().today; if (t !== day) { day = t; if (current?.dataset.view === 'home') renderHome(); } }, 30000);
 
+  if (DEV) window.MT_TEST = { store, DB, rerender: route };
   window.addEventListener('hashchange', route);
   route();
 }

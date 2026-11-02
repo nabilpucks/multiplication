@@ -1,8 +1,8 @@
 // IndexedDB access via the idb wrapper.
 import { openDB } from '../vendor/idb.js';
+import { DB_NAME, lsKey } from './env.js';
 
-const DB_NAME = 'multiplication-trainer';
-const MARKER = 'mt.marker'; // localStorage copy of the install id, used to notice wiped IndexedDB
+const MARKER = lsKey('marker'); // localStorage copy of the install id, used to notice wiped IndexedDB
 
 let dbp = null;
 
