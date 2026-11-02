@@ -76,3 +76,10 @@ test('two Dailies on the same date after combining: the earliest is the Daily, t
   assert.ok(extraDailyIds(days).has('late'));
   assert.equal(day.freeMinutes, 10);
 });
+
+test('cancelled-Daily flag survives import and is checked', () => {
+  const ok = parseExport(file([session({ mode: 'free', cancelledDaily: true })]));
+  assert.equal(ok.ok, true);
+  assert.equal(ok.sessions[0].cancelledDaily, true);
+  assert.equal(parseExport(file([session({ cancelledDaily: 'yes' })])).ok, false);
+});

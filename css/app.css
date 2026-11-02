@@ -338,7 +338,7 @@ body.in-session main { padding-top: 24px; }
 .badge.skipped-pause { background: rgba(255, 255, 255, .08); color: var(--ink-2); }
 .mode-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
 .mode-dot.daily { background: var(--daily); }
-.mode-dot.free, .mode-dot.extra { background: var(--free); }
+.mode-dot.free, .mode-dot.extra, .mode-dot.cancelled { background: var(--free); }
 .h-empty { padding: 40px; text-align: center; color: var(--ink-3); }
 
 /* ---------- Responsive ---------- */

@@ -42,6 +42,14 @@ export const store = {
     if (state.installId) DB.writeMarker(state.installId, state.sessions.length);
     bump();
   },
+  async remove(id) {
+    if (!state.byId.has(id)) return;
+    state.byId.delete(id);
+    state.sessions = state.sessions.filter((s) => s.id !== id);
+    await DB.deleteSession(id);
+    if (state.installId) DB.writeMarker(state.installId, state.sessions.length);
+    bump();
+  },
   touch() { bump(); },
   subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
 };

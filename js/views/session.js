@@ -3,7 +3,6 @@ import { Trainer } from '../trainer.js';
 import { createGenerator } from '../generator.js';
 import { buildWeakSource } from '../analysis-logic.js';
 import { store } from '../store.js';
-import { DAILY_MS } from '../constants.js';
 import { $, reducedMotion, confirmDialog, toast } from '../ui.js';
 
 let trainer = null;
@@ -24,6 +23,7 @@ export function initSession({ go }) {
     input: $('#answer'), flash: $('#answer-flash'), box: $('#answer-box'), correct: $('#session-correct'),
     tm: $('#timer-m'), ts: $('#timer-s'), timer: $('.session-timer'), pause: $('#pause-layer'),
     pauseTitle: $('#pause-title'), pauseSub: $('#pause-sub'), resume: $('#resume-btn'), quit: $('#session-quit'),
+    cancel: $('#session-cancel'), pauseCancel: $('#pause-cancel'),
     weak: $('#weak-toggle'), weakWrap: $('#weak-switch-wrap'),
   });
   els.tm.format = { minimumIntegerDigits: 1 };
@@ -37,6 +37,8 @@ export function initSession({ go }) {
   els.view.addEventListener('pointerup', () => focusInput());
   els.resume.addEventListener('click', () => { trainer?.resume(); });
   els.quit.addEventListener('click', quit);
+  els.cancel.addEventListener('click', cancelAttempt);
+  els.pauseCancel.addEventListener('click', cancelAttempt);
   els.weak.addEventListener('change', () => { setWeakPref(els.weak.checked); trainer && (trainer.weakOn = els.weak.checked); focusInput(); });
   document.addEventListener('visibilitychange', () => { if (isActive()) { trainer.tick(); renderTimer(true); } });
   window.addEventListener('pagehide', () => { if (isActive()) trainer.persist(); });
@@ -57,13 +59,14 @@ export function startSession(mode) {
   trainer = new Trainer({
     mode, generator,
     save: (r) => { store.save(r, { quiet: true }).catch((e) => toast('Couldn’t save: ' + e.message)); },
-    on: { question: showQuestion, typed: (s) => { els.input.value = s; }, wrong: flashWrong, pause: onPause, resume: onResume, finish: onFinish },
+    on: { question: showQuestion, typed: (s) => { els.input.value = s; }, wrong: flashWrong, pause: onPause, resume: onResume, finish: onFinish, cancel: onCancel },
   });
   trainer.weakOn = mode === 'free' && weakPref();
   els.weak.checked = trainer.weakOn;
   els.weakWrap.hidden = mode !== 'free';
   els.mode.textContent = mode === 'daily' ? 'Daily' : 'Free Practice';
   els.quit.textContent = mode === 'daily' ? 'End early' : 'Stop';
+  els.cancel.hidden = els.pauseCancel.hidden = mode !== 'daily';
   els.correct.textContent = '0';
   els.pause.hidden = true;
   els.input.value = '';
@@ -149,17 +152,40 @@ async function quit() {
   if (wasRunning) trainer.pause('manual');
   const ok = await confirmDialog({
     title: 'End today’s Daily early?',
-    body: 'It will be saved as incomplete with the minutes you’ve done, and you can’t restart it today.',
+    body: 'It will be saved as incomplete with the minutes you’ve done, and you can’t restart it today. (To start over instead, use “Cancel attempt”.)',
     ok: 'End Daily', cancel: 'Keep going',
   });
   if (ok) trainer.finish('incomplete');
   else focusInput();
 }
 
-function onFinish(record) {
+async function cancelAttempt() {
+  if (!isActive() || trainer.mode !== 'daily') return;
+  if (trainer.state === 'running') trainer.pause('manual');
+  const ok = await confirmDialog({
+    title: 'Cancel this attempt?',
+    body: 'It won’t count as today’s Daily, and you can start a fresh 10:00 straight away. Questions you’ve answered are kept as practice for Analysis.',
+    ok: 'Cancel attempt', cancel: 'Keep going',
+  });
+  if (ok) trainer.cancel();
+  else focusInput();
+}
+
+function leaveSession() {
   clearInterval(tickTimer);
   document.body.classList.remove('in-session');
   els.input.blur();
+}
+
+function onCancel(record) {
+  leaveSession();
+  const answered = record.questions.some((q) => q.outcome !== 'skipped-pause');
+  const done = answered ? store.save(record) : store.remove(record.id);
+  done.then(() => { navigate('#/home'); toast('Attempt cancelled. Start today’s Daily whenever you’re ready.'); });
+}
+
+function onFinish(record) {
+  leaveSession();
   const id = record.id;
   store.save(record).then(() => navigate(`#/results/${id}`));
 }

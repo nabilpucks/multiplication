@@ -173,13 +173,18 @@ export class Trainer {
     this.on.pause?.('idle');
   }
 
-  /** End the session. Unanswered current question is dropped. */
-  finish(status, t = now()) {
-    if (this.state === 'done') return;
+  /** Stop the clocks and drop the unanswered current question. */
+  close(t) {
     if (this.state === 'running') this.record.activeMs += t - this.segStart;
     if (this.state === 'paused') this.record.pausedMs += t - this.pausedSince;
     this.state = 'done';
     this.cur = null;
+  }
+
+  /** End the session. Unanswered current question is dropped. */
+  finish(status, t = now()) {
+    if (this.state === 'done') return;
+    this.close(t);
     const r = this.record;
     if (this.mode === 'daily' && status === 'complete') r.activeMs = DAILY_MS;
     r.activeMs = Math.round(r.activeMs);
@@ -187,5 +192,22 @@ export class Trainer {
     r.status = status;
     this.saveFn(r);
     this.on.finish?.(r);
+  }
+
+  /**
+   * Cancel a Daily attempt so it can be retried. The attempt stops being a Daily:
+   * it is kept as Free Practice (marked cancelledDaily) so its questions still feed Analysis.
+   */
+  cancel(t = now()) {
+    if (this.mode !== 'daily' || this.state === 'done') return;
+    this.close(t);
+    const r = this.record;
+    r.activeMs = Math.round(r.activeMs);
+    r.pausedMs = Math.round(r.pausedMs);
+    r.mode = 'free';
+    r.cancelledDaily = true;
+    r.status = 'complete';
+    this.saveFn(r);
+    this.on.cancel?.(r);
   }
 }

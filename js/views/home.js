@@ -25,7 +25,7 @@ export function renderHome() {
       : `Incomplete · ${minutesOf(daily).toFixed(1)} min recorded · come back tomorrow`;
   } else {
     $('#daily-title').textContent = 'Start today’s Daily';
-    $('#daily-sub').textContent = '10:00 · one attempt · counts towards your trend';
+    $('#daily-sub').textContent = '10:00 · cancel and retry any time before it ends';
   }
 
   const unlocked = !!daily;

@@ -40,7 +40,7 @@
         <button class="card glass card-daily reveal" id="daily-card" data-action="start-daily">
           <span class="card-label">Daily</span>
           <span class="card-title" id="daily-title">Start today’s Daily</span>
-          <span class="card-sub" id="daily-sub">10:00 · one attempt · counts towards your trend</span>
+          <span class="card-sub" id="daily-sub">10:00 · cancel and retry any time before it ends</span>
           <span class="card-arrow" aria-hidden="true">→</span>
         </button>
         <div class="card glass card-free reveal" id="free-card">
@@ -70,6 +70,7 @@
         <div class="session-right">
           <label class="switch small" id="weak-switch-wrap"><input type="checkbox" id="weak-toggle"><span class="track"><span class="thumb"></span></span><span>Weak spots</span></label>
           <span class="session-score"><span id="session-correct">0</span> correct</span>
+          <button class="btn ghost small" id="session-cancel">Cancel attempt</button>
           <button class="btn ghost small" id="session-quit">End early</button>
         </div>
       </div>
@@ -85,6 +86,7 @@
           <p class="pause-sub" id="pause-sub">The question is hidden. You’ll get a fresh one when you resume.</p>
           <div class="pause-actions">
             <button class="btn primary" id="resume-btn">Resume <kbd>Space</kbd></button>
+            <button class="btn ghost" id="pause-cancel">Cancel attempt</button>
           </div>
         </div>
       </div>
@@ -184,7 +186,7 @@
       <div class="filters glass reveal">
         <label class="field"><span>Number</span><input id="h-num" inputmode="numeric" placeholder="e.g. 37" autocomplete="off"></label>
         <label class="field"><span>Mode</span>
-          <select id="h-mode"><option value="">All</option><option value="daily">Daily</option><option value="extra">Extra practice</option><option value="free">Free Practice</option></select></label>
+          <select id="h-mode"><option value="">All</option><option value="daily">Daily</option><option value="extra">Extra practice</option><option value="free">Free Practice</option><option value="cancelled">Cancelled Daily</option></select></label>
         <label class="field"><span>Outcome</span>
           <select id="h-outcome"><option value="">All</option><option value="correct">Correct</option><option value="mistake">With a mistake</option><option value="timed-out">Timed out</option><option value="skipped-pause">Skipped (pause)</option></select></label>
         <label class="field"><span>From</span><input type="date" id="h-from"></label>

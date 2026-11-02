@@ -5,7 +5,7 @@ import { formatDateKey } from '../dates.js';
 import { $, esc } from '../ui.js';
 
 const ROW_H = 40, OVERSCAN = 8;
-const MODE_LABEL = { daily: 'Daily', extra: 'Extra practice', free: 'Free Practice' };
+const MODE_LABEL = { daily: 'Daily', extra: 'Extra practice', free: 'Free Practice', cancelled: 'Cancelled Daily' };
 const OUTCOME_LABEL = { correct: 'Correct', 'timed-out': 'Timed out', 'skipped-pause': 'Skipped (pause)' };
 
 let rows = [];          // flattened, newest first
@@ -30,7 +30,7 @@ function build() {
   const sessions = [...store.sessions].sort((x, y) => (x.startedAt < y.startedAt ? 1 : -1));
   const out = [];
   for (const s of sessions) {
-    const mode = s.mode === 'daily' ? (extras.has(s.id) ? 'extra' : 'daily') : 'free';
+    const mode = s.mode === 'daily' ? (extras.has(s.id) ? 'extra' : 'daily') : s.cancelledDaily ? 'cancelled' : 'free';
     for (let i = s.questions.length - 1; i >= 0; i--) {
       const q = s.questions[i];
       out.push({ date: s.date, mode, a: q.a, b: q.b, outcome: q.outcome, ms: q.ms, wrong: q.wrongAttempts, mistake: q.wrongAttempts.length > 0 });

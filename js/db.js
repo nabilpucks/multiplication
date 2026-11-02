@@ -21,6 +21,7 @@ export function db() {
 
 export const getAllSessions = async () => (await db()).getAll('sessions');
 export const putSession = async (s) => { await (await db()).put('sessions', s); };
+export const deleteSession = async (id) => { await (await db()).delete('sessions', id); };
 export const getMeta = async (k) => (await db()).get('meta', k);
 export const setMeta = async (k, v) => (await db()).put('meta', v, k);
 export async function allIds() { return new Set(await (await db()).getAllKeys('sessions')); }

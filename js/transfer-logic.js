@@ -32,6 +32,7 @@ export function validateSession(s) {
   if (s.status !== 'complete' && s.status !== 'incomplete') e.push('status must be "complete" or "incomplete"');
   if (!isInt(s.correct)) e.push('correct must be a whole number');
   if (!isInt(s.mistakes)) e.push('mistakes must be a whole number');
+  if (s.cancelledDaily != null && typeof s.cancelledDaily !== 'boolean') e.push('cancelledDaily must be true/false');
   if (!Array.isArray(s.questions)) e.push('questions must be a list');
   else {
     for (let i = 0; i < s.questions.length; i++) {

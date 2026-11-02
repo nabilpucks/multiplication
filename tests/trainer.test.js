@@ -106,3 +106,41 @@ test('quitting a Daily early saves it as incomplete with the minutes done', () =
   assert.equal(saves.at(-1).activeMs, 125000);
   assert.equal(saves.at(-1).correct, 1);
 });
+
+test('cancelling a Daily turns it into practice, so today has no Daily and it can be retried', async () => {
+  const { buildDays } = await import('../js/sessions.js');
+  clock = 0;
+  const first = make('daily');
+  const cancelled = [];
+  first.t.on.cancel = (r) => cancelled.push(r);
+  first.t.start();
+  clock = 4000; type(first.t, '408');
+  clock = 9000; first.t.cancel();
+  const r = first.saves.at(-1);
+  assert.equal(cancelled.length, 1);
+  assert.equal(r.mode, 'free');
+  assert.equal(r.cancelledDaily, true);
+  assert.equal(r.correct, 1);
+  assert.equal(r.activeMs, 9000);
+  assert.equal(first.t.state, 'done');
+  assert.equal(buildDays([r]).get(r.date).daily, null, 'no Daily for the day yet');
+
+  const retry = make('daily');
+  retry.t.start();
+  retry.t.finish('incomplete');
+  const day = buildDays([r, retry.saves.at(-1)]).get(r.date);
+  assert.equal(day.daily.id, retry.t.record.id, 'the retry is the day’s Daily');
+});
+
+test('cancel only applies to an unfinished Daily', () => {
+  clock = 0;
+  const free = make('free');
+  free.t.start();
+  free.t.cancel();
+  assert.equal(free.t.state, 'running');
+  const daily = make('daily');
+  daily.t.start();
+  daily.t.finish('incomplete');
+  daily.t.cancel();
+  assert.equal(daily.t.record.mode, 'daily');
+});
