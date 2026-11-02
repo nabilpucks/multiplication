@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Daily Multiplication</title>
+  <meta name="color-scheme" content="dark">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2313151c'/%3E%3Cpath d='M10 10l12 12M22 10L10 22' stroke='%2386b6ef' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body>
+  <div class="bg" aria-hidden="true">
+    <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+  </div>
+
+  <header class="topbar glass" id="topbar">
+    <a class="brand" href="#/home" aria-label="Home"><span class="brand-mark">×</span><span class="brand-name">Daily Multiplication</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="#/home" data-nav="home">Home</a>
+      <a href="#/progress" data-nav="progress">Progress</a>
+      <a href="#/analysis" data-nav="analysis">Analysis</a>
+      <a href="#/history" data-nav="history">History</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="btn ghost small" data-action="import">Import</button>
+      <button class="btn ghost small" data-action="export">Export</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner glass" role="alert" hidden></div>
+
+  <main id="app">
+    <!-- HOME -->
+    <section class="view" data-view="home" hidden>
+      <div class="home-hero">
+        <p class="eyebrow" id="home-date"></p>
+        <h1 class="display split">Ten minutes.<br>Every day.</h1>
+      </div>
+      <div class="home-grid">
+        <button class="card glass card-daily reveal" id="daily-card" data-action="start-daily">
+          <span class="card-label">Daily</span>
+          <span class="card-title" id="daily-title">Start today’s Daily</span>
+          <span class="card-sub" id="daily-sub">10:00 · one attempt · counts towards your trend</span>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </button>
+        <div class="card glass card-free reveal" id="free-card">
+          <span class="card-label">Free Practice</span>
+          <span class="card-title" id="free-title">Locked</span>
+          <span class="card-sub" id="free-sub">Unlocks after today’s Daily.</span>
+          <div class="free-row">
+            <label class="switch"><input type="checkbox" id="weak-toggle-home"><span class="track"><span class="thumb"></span></span><span>Target weak spots</span></label>
+            <button class="btn" id="free-start" data-action="start-free" disabled>Start</button>
+          </div>
+        </div>
+      </div>
+      <div class="tiles tiles-home reveal">
+        <div class="tile glass"><span class="tile-label">Current streak</span><span class="tile-value"><number-flow id="home-streak"></number-flow><small> days</small></span></div>
+        <div class="tile glass"><span class="tile-label">7-day average</span><span class="tile-value"><number-flow id="home-avg"></number-flow></span></div>
+        <div class="tile glass"><span class="tile-label">Best score</span><span class="tile-value"><number-flow id="home-best"></number-flow></span></div>
+      </div>
+      <p class="export-line reveal" data-export-line></p>
+      <p class="empty-hint reveal" id="home-empty" hidden>No sessions yet. Used this on another laptop? <button class="link" data-action="import">Import your last export</button> or drag the file onto this window.</p>
+    </section>
+
+    <!-- SESSION (Daily + Free share this view) -->
+    <section class="view view-session" data-view="session" hidden>
+      <div class="session-bar">
+        <div class="session-mode" id="session-mode">Daily</div>
+        <div class="session-timer" aria-live="off"><number-flow id="timer-m"></number-flow><span class="colon">:</span><number-flow id="timer-s"></number-flow></div>
+        <div class="session-right">
+          <label class="switch small" id="weak-switch-wrap"><input type="checkbox" id="weak-toggle"><span class="track"><span class="thumb"></span></span><span>Weak spots</span></label>
+          <span class="session-score"><span id="session-correct">0</span> correct</span>
+          <button class="btn ghost small" id="session-quit">End early</button>
+        </div>
+      </div>
+      <div class="stage glass" id="stage">
+        <div class="question" id="question" aria-live="polite"><span id="qa">0</span><span class="times">×</span><span id="qb">0</span></div>
+        <div class="answer" id="answer-box">
+          <input id="answer" class="answer-input" inputmode="numeric" autocomplete="off" spellcheck="false" aria-label="Your answer">
+          <div class="answer-flash" id="answer-flash"></div>
+        </div>
+        <p class="stage-hint">Type the answer · Space or Esc to pause</p>
+        <div class="pause-layer" id="pause-layer" hidden>
+          <p class="pause-title" id="pause-title">Paused</p>
+          <p class="pause-sub" id="pause-sub">The question is hidden. You’ll get a fresh one when you resume.</p>
+          <div class="pause-actions">
+            <button class="btn primary" id="resume-btn">Resume <kbd>Space</kbd></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section class="view" data-view="results" hidden>
+      <p class="eyebrow" id="results-eyebrow">Daily · today</p>
+      <h1 class="display split" id="results-title">Nice work.</h1>
+      <div class="results-main">
+        <div class="score-big"><number-flow id="results-score"></number-flow><span class="score-unit" id="results-unit">correct</span></div>
+        <div class="results-side">
+          <div class="tile glass reveal"><span class="tile-label">Accuracy (first try)</span><span class="tile-value"><number-flow id="results-acc"></number-flow></span></div>
+          <div class="tile glass reveal"><span class="tile-label" id="results-l2">vs yesterday</span><span class="tile-value" id="results-v2"></span></div>
+          <div class="tile glass reveal"><span class="tile-label" id="results-l3">vs 7-day average</span><span class="tile-value" id="results-v3"></span></div>
+          <div class="tile glass reveal"><span class="tile-label">Questions with a mistake</span><span class="tile-value"><number-flow id="results-mistakes"></number-flow></span></div>
+        </div>
+      </div>
+      <div class="results-actions reveal">
+        <a class="btn primary" href="#/home">Home</a>
+        <a class="btn" href="#/progress">See progress</a>
+      </div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section class="view" data-view="progress" hidden>
+      <div class="view-head">
+        <div><p class="eyebrow">Progress</p><h1 class="display-m split">Your daily score</h1></div>
+        <div class="seg" role="group" aria-label="Range" id="range-seg">
+          <button data-range="30">30 days</button><button data-range="90" class="on">90 days</button><button data-range="all">All</button>
+        </div>
+      </div>
+      <div class="tiles tiles-5 reveal">
+        <div class="tile glass"><span class="tile-label">Current streak</span><span class="tile-value"><number-flow id="p-streak"></number-flow><small> days</small></span></div>
+        <div class="tile glass"><span class="tile-label">Best score</span><span class="tile-value"><number-flow id="p-best"></number-flow></span></div>
+        <div class="tile glass"><span class="tile-label">7-day average</span><span class="tile-value"><number-flow id="p-avg"></number-flow></span></div>
+        <div class="tile glass"><span class="tile-label">Accuracy trend</span><span class="tile-value"><number-flow id="p-acc"></number-flow><small id="p-acc-delta"></small></span></div>
+        <div class="tile glass"><span class="tile-label">Total minutes</span><span class="tile-value"><number-flow id="p-mins"></number-flow></span></div>
+      </div>
+      <div class="panel glass reveal chart-panel">
+        <div class="legend" id="p-legend">
+          <span><i class="lg-line"></i>Score (correct per 10 min)</span>
+          <span><i class="lg-line faint"></i>7-day average</span>
+          <span><i class="lg-ring"></i>Incomplete Daily</span>
+          <span><i class="lg-sq daily"></i>Daily minutes</span>
+          <span><i class="lg-sq free"></i>Free minutes</span>
+        </div>
+        <div class="chart" id="progress-chart"></div>
+        <p class="needs-data" id="progress-empty" hidden>Finish a few Dailies to see your trend here.</p>
+      </div>
+      <p class="export-line reveal" data-export-line></p>
+    </section>
+
+    <!-- ANALYSIS -->
+    <section class="view" data-view="analysis" hidden>
+      <div class="view-head">
+        <div><p class="eyebrow">Analysis</p><h1 class="display-m split">Where the time goes</h1></div>
+        <p class="head-note" id="a-overall"></p>
+      </div>
+      <div class="panel glass reveal">
+        <div class="panel-head"><h2>Tens-digit grid</h2><p>Median time for each pair of tens digits (0 = single-digit numbers). Blue is faster than your overall median, red is slower. Small number = questions counted.</p></div>
+        <div class="tens-wrap"><div class="tens-grid" id="tens-grid"></div></div>
+        <div class="scale-legend"><span>faster</span><i class="scale-bar"></i><span>slower</span><span class="nd-chip">needs more data</span></div>
+      </div>
+      <div class="analysis-cols">
+        <div class="panel glass reveal">
+          <div class="panel-head"><h2>Each number</h2><p>Median time whenever this number appears.</p></div>
+          <div class="num-grid" id="num-grid"></div>
+        </div>
+        <div class="panel glass reveal">
+          <div class="panel-head"><h2>20 slowest questions</h2><p>By your most recent time. A question leaves once you beat your overall median on it.</p></div>
+          <ol class="slow-list" id="slow-list"></ol>
+        </div>
+      </div>
+      <div class="analysis-cols">
+        <div class="panel glass reveal">
+          <div class="panel-head"><h2>Patterns</h2><p>Median time compared with your overall median.</p></div>
+          <div class="patterns" id="patterns"></div>
+        </div>
+        <div class="panel glass reveal">
+          <div class="panel-head"><h2>Tiredness</h2><p>Median time for each minute of the Daily.</p></div>
+          <div class="chart" id="tired-chart"></div>
+        </div>
+      </div>
+      <div class="panel glass reveal">
+        <div class="panel-head"><h2>Mistake types</h2><p>Every wrong attempt, classified.</p></div>
+        <div class="mistakes" id="mistakes"></div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="view" data-view="history" hidden>
+      <div class="view-head">
+        <div><p class="eyebrow">History</p><h1 class="display-m split">Every question</h1></div>
+        <p class="head-note" id="h-count"></p>
+      </div>
+      <div class="filters glass reveal">
+        <label class="field"><span>Number</span><input id="h-num" inputmode="numeric" placeholder="e.g. 37" autocomplete="off"></label>
+        <label class="field"><span>Mode</span>
+          <select id="h-mode"><option value="">All</option><option value="daily">Daily</option><option value="extra">Extra practice</option><option value="free">Free Practice</option></select></label>
+        <label class="field"><span>Outcome</span>
+          <select id="h-outcome"><option value="">All</option><option value="correct">Correct</option><option value="mistake">With a mistake</option><option value="timed-out">Timed out</option><option value="skipped-pause">Skipped (pause)</option></select></label>
+        <label class="field"><span>From</span><input type="date" id="h-from"></label>
+        <label class="field"><span>To</span><input type="date" id="h-to"></label>
+      </div>
+      <div class="panel glass reveal history-panel">
+        <div class="h-row h-header"><span>Date</span><span>Mode</span><span>Question</span><span>Your answer</span><span class="num">Time</span><span>Outcome</span></div>
+        <div class="h-scroll" id="h-scroll"><div class="h-spacer" id="h-spacer"></div></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="tooltip glass" id="tooltip" role="tooltip" hidden></div>
+  <div class="toast glass" id="toast" role="status" hidden></div>
+  <div class="drop-layer" id="drop-layer" hidden><div class="drop-card glass"><p class="display-m">Drop to import</p><p>Sessions are combined, never replaced.</p></div></div>
+  <div class="modal-layer" id="modal" hidden>
+    <div class="modal glass" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <h2 id="modal-title"></h2><p id="modal-body"></p>
+      <div class="modal-actions"><button class="btn ghost" id="modal-cancel">Cancel</button><button class="btn danger" id="modal-ok">OK</button></div>
+    </div>
+  </div>
+  <input type="file" id="file-input" accept=".json,application/json" hidden>
+
+  <script>
+    // The bundled copy works everywhere (including straight from the file).
+    // Add ?src to the URL on a local server to run the ES-module sources directly.
+    (function () {
+      var s = document.createElement('script');
+      if (/[?&]src\b/.test(location.search) && location.protocol !== 'file:') { s.type = 'module'; s.src = 'js/main.js'; }
+      else { s.src = 'js/app.bundle.js'; }
+      document.body.appendChild(s);
+    })();
+  </script>
+</body>
+</html>
